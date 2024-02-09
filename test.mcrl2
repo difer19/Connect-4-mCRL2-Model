@@ -1,0 +1,6 @@
+act a : List(Nat#Nat);
+act b : Nat#Nat;
+act c,d,e,f,g;
+
+proc p(numberState: Nat, e: Nat) = c.a(numberState+1, 1).  
+init p;

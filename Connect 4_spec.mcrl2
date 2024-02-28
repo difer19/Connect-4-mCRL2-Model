@@ -1,11 +1,14 @@
-sort Token = struct O|X|null;
+% Modelo de representation de datos
+sort Token = struct O|X|void;
 	 Position = List(List(Token));
 
+% Funciones
 map Rows: Nat;
 	Columns: Nat;
 	initPosition: Position;
 	next: Token->Token;
 	isWinner: Position#Token->Bool;
+	isFinal: Position->Bool;
 
  	replaceBoard: Position#Nat#Nat#Token->Position;
  	replaceColumn: List(Token)#Nat#Token->List(Token);
@@ -15,6 +18,7 @@ map Rows: Nat;
 
 	maxDepth: Nat;
 
+% variables para las ecuaciones de las funciones
 var m: Token;
 	b: Position;
 	llst: Position;
@@ -23,16 +27,17 @@ var m: Token;
 	ls: List(Token);
 	columnIndex: Nat;
 
+% ecuaciones que describen en funcionamiento de las funciones
 eqn 
 	Rows = 6;
 	Columns = 7;
 	initPosition = [
-		[null,null,null,null,null,null,null],
-		[null,null,null,null,null,null,null],
-		[null,null,null,null,null,null,null],
-		[null,null,null,null,null,null,null],
-		[null,null,null,null,null,null,null],
-		[null,null,null,null,null,null,null]
+		[void,void,void,void,void,void,void],
+		[void,void,void,void,void,void,void],
+		[void,void,void,void,void,void,void],
+		[void,void,void,void,void,void,void],
+		[void,void,void,void,void,void,void],
+		[void,void,void,void,void,void,void]
 	];
 	
 	
@@ -77,6 +82,8 @@ eqn
 		(b.2.5  == m && b.3.4  == m && b.4.3  == m && b.5.2  == m ) ||
 		(b.2.6  == m && b.3.5  == m && b.4.4  == m && b.5.3  == m ) ;
 
+	isFinal(b) = isWinner(b, X) || isWinner(b, O) || 
+		! exists row, column : Nat.(row < Rows && column < Columns && b.row.column == void);
 
  	replaceBoard ([], i, j, n)=[];
 
@@ -95,52 +102,31 @@ eqn
 
 
 	getRowValue([]) = 8;
-	getRowValue(ls) = if(rhead(ls)==null, #ls, getRowValue(rtail(ls)));
+	getRowValue(ls) = if(rhead(ls)==void, #ls, getRowValue(rtail(ls)));
 
-	maxDepth = 2;
+	maxDepth = 4;
 
+% Acciones
 act place: Nat#Nat#Token;
  	win: Token;
 	pos : Position;
-	pso : Position#Nat;
-	backtracking, defSuccessor;
-	max, min;
 
+%Proceso que genera los sucesores
 proc GenSuccesors(b: Position, m: Token, depth: Nat) =
-	sum c:Nat.(c < Columns && null in getCol(b,c)) ->
+	sum c:Nat.(c < Columns && void in getCol(b,c)) ->
 		pos(replaceBoard(b, Int2Nat((getRowValue(getCol(b,c)))-1),c,m)).
 		Game(replaceBoard(b, Int2Nat((getRowValue(getCol(b,c)))-1),c,m), next(m), Int2Nat(depth+1));
 
-proc GenSuccessoMinmax(b: Position, m: Token, depth: Nat, thread: Nat) =
-	sum c:Nat.(c < Columns && null in getCol(b,c)) ->
-		%pso(replaceBoard(b, Int2Nat((getRowValue(getCol(b,c)))-1),c,m), thread).
-		%max.Minmax(replaceBoard(b, Int2Nat((getRowValue(getCol(b,c)))-1),c,m), next(m), Int2Nat(depth+1), thread)
-		(m == O) -> max.Minmax(replaceBoard(b, Int2Nat((getRowValue(getCol(b,c)))-1),c,m), next(m), Int2Nat(depth+1), thread)
-		<> min.Minmax(replaceBoard(b, Int2Nat((getRowValue(getCol(b,c)))-1),c,m), next(m), Int2Nat(depth+1), thread);
-
-proc processPool(b: Position, m: Token, depth: Nat, c: Nat, thread: Nat) =
-	(null in getCol(b,c)) -> 
-		Minmax(replaceBoard(b, Int2Nat((getRowValue(getCol(b,c)))-1),c,m), next(m), Int2Nat(depth+1), thread);
-
+%Proceso del juego
 proc Game(b: Position, m: Token, depth: Nat) = 
 	(isWinner(b,next(m))) ->
 			win(next(m)).delta
-	<> (depth < maxDepth) -> 
+	<> (depth < maxDepth && !isFinal(b)) -> 
 			GenSuccesors(b, m, depth)
 	<> delta;
 
-proc Minmax(b: Position, m: Token, depth: Nat, thread: Nat) = 
-	(isWinner(b,next(m))) ->
-		backtracking.defSuccessor.delta
-	<> (depth <= maxDepth) -> 
-			GenSuccessoMinmax(b, m, depth, thread)
-	<> backtracking.defSuccessor.delta;
-
-
-% init Game(initPosition, X, 0);
-init allow ({max, min, backtracking|backtracking, defSuccessor|defSuccessor}, 
-	processPool(initPosition, X, 0, 0, 1) || processPool(initPosition, X, 0, 1, 2));
-%init processPool(initPosition, X, 0, 0, 1);
+% Inicialización
+init Game(initPosition, X, 0);
 
 
 

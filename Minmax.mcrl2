@@ -1,6 +1,8 @@
+% Modelo de representation de datos
 sort Token = struct O|X|void;
 	 Position = List(List(Token));
 
+% Funciones
 map Rows: Nat;
 	Columns: Nat;
 	initPosition: Position;
@@ -14,8 +16,11 @@ map Rows: Nat;
 	getCol: Position#Nat -> List(Token);
 	getRowValue: List(Token) -> Nat;
 
+	regList: List(Position)#Nat#Nat#List(Position)#Token -> List(Position);
+
 	maxDepth: Nat;
 
+% variables para las ecuaciones de las funciones
 var m: Token;
 	b: Position;
 	llst: Position;
@@ -24,7 +29,10 @@ var m: Token;
 	ls: List(Token);
 	columnIndex: Nat;
     lp : List(Position);
+	nl : List(Position);
 
+
+% ecuaciones que describen en funcionamiento de las funciones
 eqn 
 	Rows = 6;
 	Columns = 7;
@@ -102,54 +110,42 @@ eqn
 	getRowValue([]) = 8;
 	getRowValue(ls) = if(rhead(ls)==void, #ls, getRowValue(rtail(ls)));
 
-	maxDepth = 2;
+	regList(lp, i, j, nl, m) =
+		if(i == #lp, nl, if(j < Columns, regList(lp, i,Int2Nat(j+1), 
+		nl<|replaceBoard(lp.i, Int2Nat((getRowValue(getCol(lp.i,j)))-1),j,m), m),
+		regList(lp, Int2Nat(i+1), 0, nl, m)));
 
-act place: Nat#Nat#Token;
- 	win: Token;
-	pos : Position;
-	pso : Position#Nat;
-	backtracking, defSuccessor, defList;
-	% max : List(Position)#Nat#Nat#Nat#Token;
-	% min : List(Position)#Nat#Nat#Nat#Token;
-	% max, min;
+	maxDepth = 1;
+
+
+% acciones
+act backtracking, defSuccessor, defList, defSuccessorGen;
 	max : Nat#Nat#Nat#Token;
 	min : Nat#Nat#Nat#Token;
-	% max : Nat;
-	% min : Nat;
-	defSuccessorGen;
 	
-proc GenSuccesors(b: Position, m: Token, depth: Nat) =
-	sum c:Nat.(c < Columns && void in getCol(b,c)) ->
-		pos(replaceBoard(b, Int2Nat((getRowValue(getCol(b,c)))-1),c,m)).
-		Game(replaceBoard(b, Int2Nat((getRowValue(getCol(b,c)))-1),c,m), next(m), Int2Nat(depth+1));
 
-proc Game(b: Position, m: Token, depth: Nat) = 
-	(isWinner(b,next(m))) ->
-			win(next(m)).delta
-	<> (depth < maxDepth) -> 
-			GenSuccesors(b, m, depth)
-	<> delta;
+% proc defSuc(b: List(Position), i: Nat, j: Nat, nl: List(Position), m: Token, depth: Nat, thread: Nat) =
+%     defList.(i == #b) -> Minmax(nl, m, depth, thread)
+%     <> (j < Columns) -> defSuc(b, i, Int2Nat(j+1), nl<|replaceBoard(b.i, Int2Nat((getRowValue(getCol(b.i,j)))-1),j,m), m, depth, thread)
+%     <> defSuc(b, Int2Nat(i+1), 0, nl , m, depth, thread);
 
 proc defSuc(b: List(Position), i: Nat, j: Nat, nl: List(Position), m: Token, depth: Nat, thread: Nat) =
-    (i == #b) -> defList.Minmax(nl, m, depth, thread)
-    <> (j < Columns) -> defList.defSuc(b, i, Int2Nat(j+1), nl<|replaceBoard(b.i, Int2Nat((getRowValue(getCol(b.i,j)))-1),j,m), m, depth, thread)
-    <> defList.defSuc(b, Int2Nat(i+1), 0, nl , m, depth, thread);
+	Minmax(regList(b, i, j, nl, m), m, depth, thread);
 
 proc Minmax(b: List(Position), m: Token, depth: Nat, thread: Nat) = 
-	(depth <= maxDepth) -> 
-        % (m == X) -> max(b, #b, depth, thread, m).defSuc(b, 0, 0, [], next(m), Int2Nat(depth+1), thread)
-        % <> min(b, #b, depth, thread, m).defSuc(b, 0, 0, [], next(m), Int2Nat(depth+1), thread)
+	(depth <= maxDepth ) -> 
 		(m == X) -> max(#b, depth, thread, m).defSuc(b, 0, 0, [], next(m), Int2Nat(depth+1), thread)
         <> min(#b, depth, thread, m).defSuc(b, 0, 0, [], next(m), Int2Nat(depth+1), thread)
-		% (m == X) -> max(thread).defSuc(b, 0, 0, [], next(m), Int2Nat(depth+1), thread)
-        % <> min(thread).defSuc(b, 0, 0, [], next(m), Int2Nat(depth+1), thread)
 	<> backtracking.defSuccessor.delta;
 
-proc processPool(b: Position, m: Token, depth: Nat, c: Nat, thread: Nat) =
-	(void in getCol(b,c) && maxDepth > 0) -> 
-		Minmax([replaceBoard(b, Int2Nat((getRowValue(getCol(b,c)))-1),c,m)], m, Int2Nat(depth+1), thread);
+proc processPool(b: Position, m: Token, depth: Nat, column: Nat, thread: Nat) =
+	(void in getCol(b,column)) -> 
+		Minmax([replaceBoard(b, Int2Nat((getRowValue(getCol(b,column)))-1),column,m)], m, Int2Nat(depth+1), thread);
 
 init hide ({defList}, 
 	block ({defSuccessor}, 
-		comm({defSuccessor|defSuccessor -> defSuccessorGen},
-			processPool(initPosition, X, 0, 0, 1) || processPool(initPosition, X, 0, 1, 2))));
+		comm({defSuccessor|defSuccessor|defSuccessor -> defSuccessorGen},
+			processPool(initPosition, X, 0, 0, 1) || processPool(initPosition, X, 0, 1, 2)
+			|| processPool(initPosition, X, 0, 2, 3) || processPool(initPosition, X, 0, 3, 4)
+			|| processPool(initPosition, X, 0, 4, 5) || processPool(initPosition, X, 0, 5, 6)
+			|| processPool(initPosition, X, 0, 6, 7))));

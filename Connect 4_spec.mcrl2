@@ -104,20 +104,20 @@ eqn
 	getRowValue([]) = 8;
 	getRowValue(ls) = if(rhead(ls)==void, #ls, getRowValue(rtail(ls)));
 
-	maxDepth = 4;
+	maxDepth = 3;
 
-% Acciones
+% Actions
 act place: Nat#Nat#Token;
  	win: Token;
 	pos : Position;
 
-%Proceso que genera los sucesores
+%Process that generates successors
 proc GenSuccesors(b: Position, m: Token, depth: Nat) =
 	sum c:Nat.(c < Columns && void in getCol(b,c)) ->
 		pos(replaceBoard(b, Int2Nat((getRowValue(getCol(b,c)))-1),c,m)).
 		Game(replaceBoard(b, Int2Nat((getRowValue(getCol(b,c)))-1),c,m), next(m), Int2Nat(depth+1));
 
-%Proceso del juego
+%Game Process
 proc Game(b: Position, m: Token, depth: Nat) = 
 	(isWinner(b,next(m))) ->
 			win(next(m)).delta
@@ -125,7 +125,7 @@ proc Game(b: Position, m: Token, depth: Nat) =
 			GenSuccesors(b, m, depth)
 	<> delta;
 
-% Inicialización
+% Initialization
 init Game(initPosition, X, 0);
 
 

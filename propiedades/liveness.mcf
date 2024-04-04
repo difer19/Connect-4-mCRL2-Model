@@ -1,3 +1,5 @@
 forall x,y,z:Nat,m:Token
-    .[max(x,y,z,m)+min(x,y,z,m)+max(x,y,z,m)|max(x,y,z,m)+min(x,y,z,m)|min(x,y,z,m)] 
-mu X.[!(defSuccessorGen)]X && <true>true 
+    .[max(x,y,z,m)+min(x,y,z,m)+
+        max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)+
+        min(x,y,z,m)|min(x,y,z,m)|min(x,y,z,m)|min(x,y,z,m)|min(x,y,z,m)|min(x,y,z,m)|min(x,y,z,m)] 
+mu X.[!(defSuccessorGen)]X && <true>true  

@@ -1,8 +1,8 @@
-% Modelo de representation de datos
+% Data representation model
 sort Token = struct O|X|void;
 	 Position = List(List(Token));
 
-% Funciones
+% Functions
 map Rows: Nat;
 	Columns: Nat;
 	initPosition: Position;
@@ -20,7 +20,7 @@ map Rows: Nat;
 
 	maxDepth: Nat;
 
-% variables para las ecuaciones de las funciones
+% variables for the equations of the functions
 var m: Token;
 	b: Position;
 	llst: Position;
@@ -32,10 +32,11 @@ var m: Token;
 	nl : List(Position);
 
 
-% ecuaciones que describen en funcionamiento de las funciones
+% equations describing the operation of the functions
 eqn 
 	Rows = 6;
 	Columns = 7;
+	maxDepth = 1;
 	initPosition = [
 		[void,void,void,void,void,void,void],
 		[void,void,void,void,void,void,void],
@@ -44,23 +45,21 @@ eqn
 		[void,void,void,void,void,void,void],
 		[void,void,void,void,void,void,void]
 	];
-	
-	
-	
+
 	next(X) = O;
 	next(O) = X;
 	
 	isWinner(b,m) =
  		(exists row: Nat.(row<Rows && 
-							((b.row.0==m && b.row.1==m && b.row.2==m && b.row.3==m) ||
-							(b.row.1==m && b.row.2==m && b.row.3==m && b.row.4==m) ||
-							(b.row.2==m && b.row.3==m && b.row.4==m && b.row.5==m) ||
-							(b.row.3==m && b.row.4==m && b.row.5==m && b.row.6==m) ))) ||
+			((b.row.0==m && b.row.1==m && b.row.2==m && b.row.3==m) ||
+			(b.row.1==m && b.row.2==m && b.row.3==m && b.row.4==m) ||
+			(b.row.2==m && b.row.3==m && b.row.4==m && b.row.5==m) ||
+			(b.row.3==m && b.row.4==m && b.row.5==m && b.row.6==m) ))) ||
 											
  		(exists col: Nat.(col<Columns && 
-							((b.0.col==m && b.1.col==m && b.2.col==m && b.3.col==m) ||
-							(b.1.col==m && b.2.col==m && b.3.col==m && b.4.col==m) ||
-							(b.2.col==m && b.3.col==m && b.4.col==m && b.5.col==m) ))) ||
+			((b.0.col==m && b.1.col==m && b.2.col==m && b.3.col==m) ||
+			(b.1.col==m && b.2.col==m && b.3.col==m && b.4.col==m) ||
+			(b.2.col==m && b.3.col==m && b.4.col==m && b.5.col==m) ))) ||
  		
 		(b.0.0  == m && b.1.1  == m && b.2.2  == m && b.3.3  == m ) ||
 		(b.0.1  == m && b.1.2  == m && b.2.3  == m && b.3.4  == m ) ||
@@ -89,6 +88,7 @@ eqn
 
 	isFinal(b) = isWinner(b, X) || isWinner(b, O) || 
 			!exists row, column : Nat.(row < Rows && column < Columns && b.row.column == void);
+	
 
 
  	replaceBoard ([], i, j, n)=[];
@@ -106,46 +106,52 @@ eqn
 		[b.0.columnIndex, b.1.columnIndex, b.2.columnIndex, b.3.columnIndex, b.4.columnIndex, b.5.columnIndex], 
 	[]);
 
-
 	getRowValue([]) = 8;
 	getRowValue(ls) = if(rhead(ls)==void, #ls, getRowValue(rtail(ls)));
 
 	regList(lp, i, j, nl, m) =
 		if(i == #lp, nl, if(j < Columns, regList(lp, i,Int2Nat(j+1), 
-		nl<|replaceBoard(lp.i, Int2Nat((getRowValue(getCol(lp.i,j)))-1),j,m), m),
-		regList(lp, Int2Nat(i+1), 0, nl, m)));
+			nl<|replaceBoard(lp.i, Int2Nat((getRowValue(getCol(lp.i,j)))-1),j,m), m),
+			regList(lp, Int2Nat(i+1), 0, nl, m)));
 
-	maxDepth = 1;
-
-
-% acciones
-act backtracking, defSuccessor, defList, defSuccessorGen;
+% actions
+act backtracking, defSuccessor, defSuccessorGen, backtrackingParallel;
 	max : Nat#Nat#Nat#Token;
 	min : Nat#Nat#Nat#Token;
-	
+	place: Nat#Nat#Token;
 
-% proc defSuc(b: List(Position), i: Nat, j: Nat, nl: List(Position), m: Token, depth: Nat, thread: Nat) =
-%     defList.(i == #b) -> Minmax(nl, m, depth, thread)
-%     <> (j < Columns) -> defSuc(b, i, Int2Nat(j+1), nl<|replaceBoard(b.i, Int2Nat((getRowValue(getCol(b.i,j)))-1),j,m), m, depth, thread)
-%     <> defSuc(b, Int2Nat(i+1), 0, nl , m, depth, thread);
-
+% Generation of successors
 proc defSuc(b: List(Position), i: Nat, j: Nat, nl: List(Position), m: Token, depth: Nat, thread: Nat) =
 	Minmax(regList(b, i, j, nl, m), m, depth, thread);
 
+% Main process
 proc Minmax(b: List(Position), m: Token, depth: Nat, thread: Nat) = 
 	(depth <= maxDepth ) -> 
 		(m == X) -> max(#b, depth, thread, m).defSuc(b, 0, 0, [], next(m), Int2Nat(depth+1), thread)
         <> min(#b, depth, thread, m).defSuc(b, 0, 0, [], next(m), Int2Nat(depth+1), thread)
 	<> backtracking.defSuccessor.delta;
 
+% Process pool generation
 proc processPool(b: Position, m: Token, depth: Nat, column: Nat, thread: Nat) =
-	(void in getCol(b,column)) -> 
+	(void in getCol(b,column) && depth < maxDepth) -> 
 		Minmax([replaceBoard(b, Int2Nat((getRowValue(getCol(b,column)))-1),column,m)], m, Int2Nat(depth+1), thread);
 
-init hide ({defList}, 
-	block ({defSuccessor}, 
-		comm({defSuccessor|defSuccessor|defSuccessor -> defSuccessorGen},
-			processPool(initPosition, X, 0, 0, 1) || processPool(initPosition, X, 0, 1, 2)
-			|| processPool(initPosition, X, 0, 2, 3) || processPool(initPosition, X, 0, 3, 4)
-			|| processPool(initPosition, X, 0, 4, 5) || processPool(initPosition, X, 0, 5, 6)
-			|| processPool(initPosition, X, 0, 6, 7))));
+% Initialization
+init allow ({defSuccessorGen, min|min|min|min|min|min|min, 
+			max|max|max|max|max|max|max, max, min, backtrackingParallel}, 
+		comm({defSuccessor|defSuccessor|defSuccessor|defSuccessor|defSuccessor|defSuccessor|defSuccessor -> defSuccessorGen,
+			backtracking|backtracking|backtracking|backtracking|backtracking|backtracking|backtracking -> backtrackingParallel},
+			processPool(initPosition, X, 0, 0, 1) || processPool(initPosition, X, 0, 1, 2) ||
+			processPool(initPosition, X, 0, 2, 3)|| processPool(initPosition, X, 0, 3, 4) ||
+			processPool(initPosition, X, 0, 4, 5)|| processPool(initPosition, X, 0, 5, 6) ||
+			processPool(initPosition, X, 0, 6, 7)
+		));
+
+
+%  init allow ({defSuccessorGen, min|min, 
+% 			max|max, max, min, backtrackingParallel}, 
+% 		comm({defSuccessor|defSuccessor -> defSuccessorGen,
+% 			backtracking|backtracking -> backtrackingParallel},
+% 			processPool(initPosition, X, 0, 0, 1) || processPool(initPosition, X, 0, 1, 2) ||
+% 			processPool(initPosition, X, 0, 2, 3)
+% 		));

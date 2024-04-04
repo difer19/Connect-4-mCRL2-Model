@@ -1,4 +1,5 @@
 <root>
  <spec>Connect 4_spec.mcrl2</spec>
+ <spec>Minmax.mcrl2</spec>
  <properties/>
 </root>

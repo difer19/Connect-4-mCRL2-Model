@@ -36,7 +36,7 @@ var m: Token;
 eqn 
 	Rows = 6;
 	Columns = 7;
-	maxDepth = 1;
+	maxDepth = 3;
 	initPosition = [
 		[void,void,void,void,void,void,void],
 		[void,void,void,void,void,void,void],
@@ -148,10 +148,10 @@ init allow ({defSuccessorGen, min|min|min|min|min|min|min,
 		));
 
 
-%  init allow ({defSuccessorGen, min|min, 
-% 			max|max, max, min, backtrackingParallel}, 
-% 		comm({defSuccessor|defSuccessor -> defSuccessorGen,
-% 			backtracking|backtracking -> backtrackingParallel},
+%  init allow ({defSuccessorGen, min|min|min|min, 
+% 			max|max|max|max, max, min, backtrackingParallel}, 
+% 		comm({defSuccessor|defSuccessor|defSuccessor|defSuccessor -> defSuccessorGen,
+% 			backtracking|backtracking|backtracking|backtracking -> backtrackingParallel},
 % 			processPool(initPosition, X, 0, 0, 1) || processPool(initPosition, X, 0, 1, 2) ||
-% 			processPool(initPosition, X, 0, 2, 3)
+% 			processPool(initPosition, X, 0, 2, 3) || processPool(initPosition, X, 0, 3, 4)
 % 		));

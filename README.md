@@ -1,25 +1,25 @@
-# Especificaciones mCRL2 del Connect 4 y Minimax Paralelo
+# mCRL2 Specifications for Connect 4 and Parallel Minimax
 
-Este repositorio contiene las especificaciones formales utilizando mCRL2 para el juego Connect 4 y una versión paralela del algoritmo Minimax, junto con las propiedades que han sido verificadas formalmente.
+This repository contains formal specifications using mCRL2 for the Connect 4 game and a parallel version of the Minimax algorithm, along with the properties that have been formally verified.
 
-## Descripción
+## Description
 
-El propósito de este repositorio es proporcionar una especificación formal y verificación de propiedades del juego Connect 4 y una implementación paralela del algoritmo Minimax usando mCRL2, un lenguaje de modelado y una herramienta para el análisis formal de sistemas concurrentes.
+The purpose of this repository is to provide a formal specification and property verification of the Connect 4 game and a parallel implementation of the Minimax algorithm using mCRL2, a modeling language and a tool for the formal analysis of concurrent systems.
 
-### Contenido del Repositorio
+### Repository Contents
 
-- **Especificaciones mCRL2**: Archivos de especificaciones para el juego Connect 4 y el algoritmo Minimax paralelo.
-- **Propiedades Verificadas**: Lista de propiedades que han sido formalmente verificadas.
+- **mCRL2 Specifications**: Specification files for the Connect 4 game and the parallel Minimax algorithm.
+- **Verified Properties**: List of properties that have been formally verified.
 
-## Características
+## Features
 
-- Especificaciones completas del juego Connect 4 y su lógica de IA.
-- Implementación del algoritmo Minimax en su forma paralela.
-- Verificación de propiedades críticas.
+- Complete specifications of the Connect 4 game and its AI logic.
+- Implementation of the Minimax algorithm in its parallel form.
+- Verification of critical properties.
 
-## Requisitos
+## Requirements
 
-Para utilizar este proyecto, es necesario tener instalado mCRL2. Puede ser descargado desde el [sitio oficial de mCRL2](https://www.mcrl2.org).
+To use this project, mCRL2 must be installed. It can be downloaded from the [official mCRL2 website](https://www.mcrl2.org).
 
-## Universidad de Nariño
-## Facultad de Ingenieria
+## University of Nariño
+## Faculty of Engineering

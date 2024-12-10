@@ -1,4 +1,4 @@
-[true*] forall x,y,z:Nat,m:Token
-    .[min(x,y,z,m)] mu Y. 
-    forall x2:Nat,m2:Token.<!min(x2,y,z,m2)>Y || <defSuccessorGen>true
+[true*] forall x,y,z:Nat,m:Token.
+    ([min(x,y,z,m)] [true*] !<min(x,y,z,m)> true)
+
 

@@ -4,7 +4,7 @@ This repository contains formal specifications using mCRL2 for the Connect 4 gam
 
 ## Description
 
-The purpose of this repository is to provide a formal specification and property verification of the Connect 4 game and a parallel implementation of the Minimax algorithm using mCRL2, a modeling language and a tool for the formal analysis of concurrent systems.
+The purpose of this repository is to provide a formal specification and property verification of a parallel implementation of the Minimax algorithm using mCRL2, a modeling language and a tool for the formal analysis of concurrent systems.
 
 ### Repository Contents
 
@@ -20,6 +20,11 @@ The purpose of this repository is to provide a formal specification and property
 ## Requirements
 
 To use this project, mCRL2 must be installed. It can be downloaded from the [official mCRL2 website](https://www.mcrl2.org).
+
+## .lps Generation
+
+![image](https://github.com/user-attachments/assets/ac6e871c-db4d-4571-8689-653f09dc28e4)
+
 
 ## University of Nariño
 ## Faculty of Engineering

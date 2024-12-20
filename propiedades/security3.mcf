@@ -1,3 +1,5 @@
-[true*] forall x,y,z:Nat,m:Token.
-    ([max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)]  
-    [true*] !<max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)>)
+[true*] forall x,y,z:Nat,m:Token
+    .[max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)|max(x,y,z,m)] mu Y. 
+    forall x2:Nat,m2:Token.
+    <!(max(x2,y,z,m2)|max(x2,y,z,m2)|max(x2,y,z,m2)|max(x2,y,z,m2)|max(x2,y,z,m2)|max(x2,y,z,m2)|max(x,y,z,m2))>Y 
+    || <defSuccessorGen>true
